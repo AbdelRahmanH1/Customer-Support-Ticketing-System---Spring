@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: Customer Support Ticketing System
+
+  datasource:
+    url:  jdbc:mysql://localhost:3306/tickets?createDatabaseIfNotExist=true
+    username: root
+    password: aaaa
