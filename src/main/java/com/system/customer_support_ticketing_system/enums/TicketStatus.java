@@ -1,4 +1,5 @@
 package com.system.customer_support_ticketing_system.enums;
 
-public class TicketStatus {
+public enum TicketStatus {
+    OPEN,IN_PROGRESS,CLOSED
 }
