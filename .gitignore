@@ -19,7 +19,7 @@ target/
 *.iml
 *.ipr
 .env
-./Thinking
+Thinking/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
