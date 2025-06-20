@@ -14,7 +14,8 @@ CREATE TABLE tickets (
                          id BIGINT PRIMARY KEY AUTO_INCREMENT,
                          title VARCHAR(255),
                          description TEXT,
-                         status VARCHAR(20),
+                         status VARCHAR(20) NOT NULL DEFAULT 'OPEN'
+                             CHECK (status IN ('OPEN', 'IN_PROGRESS', 'CLOSED')),
                          user_id BIGINT,
                          admin_responder_id BIGINT,
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -24,3 +25,4 @@ CREATE TABLE tickets (
                          FOREIGN KEY (user_id) REFERENCES users(id),
                          FOREIGN KEY (admin_responder_id) REFERENCES users(id)
 );
+
