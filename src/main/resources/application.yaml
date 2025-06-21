@@ -3,6 +3,26 @@ spring:
     name: Customer Support Ticketing System
 
   datasource:
-    url:  jdbc:mysql://localhost:3306/tickets?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/tickets?createDatabaseIfNotExist=true
     username: root
     password: aaaa
+
+  jpa:
+    show-sql: true
+
+  jwt:
+    secret: ${JWT_SECRET}
+    accessTokenExpiration: 300
+    refreshTokenExpiration: 604800
+
+  web:
+    resources:
+      add-mappings: false
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+    path: /error
+    include-message: always
+    include-exception: true
