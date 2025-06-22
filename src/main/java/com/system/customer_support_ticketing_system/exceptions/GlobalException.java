@@ -2,6 +2,7 @@ package com.system.customer_support_ticketing_system.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
@@ -20,10 +21,33 @@ public class GlobalException {
     }
 
     @ExceptionHandler(HttpClientErrorException.Forbidden.class)
-    public ResponseEntity<Map<String, Object>> handleForbiddenException(NoHandlerFoundException e) {
+    public ResponseEntity<Map<String, Object>> handleForbiddenException(HttpClientErrorException.Forbidden e) {
         return  buildResponse("No access",HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException e) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("success", false);
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Validation Failed");
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        e.getBindingResult().getFieldErrors().forEach(error -> {
+            fieldErrors.put(error.getField(), error.getDefaultMessage());
+        });
+
+        body.put("message", "One or more fields have errors.");
+        body.put("errors", fieldErrors);
+        body.put("timestamp", java.time.Instant.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<Map<String, Object>> handleApiException(ApiException e) {
+        return  buildResponse(e.getMessage(),HttpStatus.BAD_REQUEST);
+    }
     private ResponseEntity<Map<String, Object>> buildResponse(String message,HttpStatus status) {
         Map<String,Object> body = new HashMap<>();
         body.put("success",false);
