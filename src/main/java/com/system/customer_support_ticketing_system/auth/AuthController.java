@@ -1,6 +1,7 @@
 package com.system.customer_support_ticketing_system.auth;
 
 import com.system.customer_support_ticketing_system.dtos.CreateUserDto;
+import com.system.customer_support_ticketing_system.dtos.LoginRequest;
 import com.system.customer_support_ticketing_system.utils.ResponseUtil;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    
+
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserDto request)  {
 
@@ -21,6 +22,12 @@ public class AuthController {
         return ResponseUtil.success("User registered successfully",userDto , HttpStatus.CREATED);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request)  {
+
+        var accessToken = authService.login(request);
+        return ResponseUtil.success("Login success",accessToken);
+    }
 
 
 }
