@@ -29,5 +29,10 @@ public class AuthController {
         return ResponseUtil.success("Login success",accessToken);
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@CookieValue(value ="refreshToken")String refreshToken)  {
+        var accessToken = authService.refreshToken(refreshToken);
+        return ResponseUtil.success("Refresh success",accessToken);
+    }
 
 }

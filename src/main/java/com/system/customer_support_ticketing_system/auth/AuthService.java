@@ -7,6 +7,7 @@ import com.system.customer_support_ticketing_system.dtos.LoginRequest;
 import com.system.customer_support_ticketing_system.dtos.UserResponse;
 import com.system.customer_support_ticketing_system.enums.UserRole;
 import com.system.customer_support_ticketing_system.exceptions.EmailAlreadyExists;
+import com.system.customer_support_ticketing_system.exceptions.InvalidTokenException;
 import com.system.customer_support_ticketing_system.mappers.UserMapper;
 import com.system.customer_support_ticketing_system.repositories.UserRepository;
 import jakarta.servlet.http.Cookie;
@@ -49,6 +50,15 @@ public class AuthService {
         cookie.setPath("/auth/refresh");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
+        return new JwtResponse(accessToken);
+    }
+    public JwtResponse refreshToken(String refreshToken){
+        if(!jwtService.validateToken(refreshToken)){
+            throw new InvalidTokenException();
+        }
+        var userId = jwtService.getUserIdFromToken(refreshToken);
+        var user = userRepository.findById(userId).orElseThrow();
+        var accessToken = jwtService.generateAccessToken(user);
         return new JwtResponse(accessToken);
     }
 }
