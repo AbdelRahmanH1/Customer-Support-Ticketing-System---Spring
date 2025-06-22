@@ -2,7 +2,6 @@ package com.system.customer_support_ticketing_system.config;
 
 import com.system.customer_support_ticketing_system.exceptions.CustomAuthenticationEntryPoint;
 import com.system.customer_support_ticketing_system.filters.JwtFilter;
-import com.system.customer_support_ticketing_system.services.CustomUserDetailsService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,13 +22,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 @AllArgsConstructor
 public class SecurityConfig {
-    private final CustomUserDetailsService customUserDetailsService;
     private final JwtFilter jwtFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return  customUserDetailsService;
-    }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
