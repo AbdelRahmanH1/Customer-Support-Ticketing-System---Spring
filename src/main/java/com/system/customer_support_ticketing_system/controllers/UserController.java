@@ -4,7 +4,6 @@ import com.system.customer_support_ticketing_system.dtos.ChangePasswordRequest;
 import com.system.customer_support_ticketing_system.services.UserService;
 import com.system.customer_support_ticketing_system.utils.ResponseUtil;
 import com.system.customer_support_ticketing_system.utils.SecurityUtil;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +23,17 @@ public class UserController {
         return ResponseUtil.success("Fetched Data successfully",userDto);
     }
 
-    @Transactional
     @PutMapping()
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest request){
         var userId = SecurityUtil.getUserId();
         userService.changePassword(userId,request);
         return ResponseUtil.success("Password Changed successfully",null);
+    }
+
+    @DeleteMapping()
+    public ResponseEntity<?> deleteAccount(){
+        var userId = SecurityUtil.getUserId();
+        userService.deleteUser(userId);
+        return ResponseUtil.success("Account Deleted successfully",null);
     }
 }
