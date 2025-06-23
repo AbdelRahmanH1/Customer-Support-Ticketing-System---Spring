@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class CreateUserDto {
+public class UserRequest {
 
     @NotBlank(message = "name is required")
     @Size(min = 4, max = 25,message = "Name length must be between 5 and 25 characters")

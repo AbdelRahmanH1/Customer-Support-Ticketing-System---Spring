@@ -1,7 +1,7 @@
 package com.system.customer_support_ticketing_system.auth;
 
-import com.system.customer_support_ticketing_system.dtos.CreateUserDto;
 import com.system.customer_support_ticketing_system.dtos.LoginRequest;
+import com.system.customer_support_ticketing_system.dtos.UserRequest;
 import com.system.customer_support_ticketing_system.utils.ResponseUtil;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserDto request)  {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest request)  {
 
         var userDto = authService.createUser(request);
         return ResponseUtil.success("User registered successfully",userDto , HttpStatus.CREATED);

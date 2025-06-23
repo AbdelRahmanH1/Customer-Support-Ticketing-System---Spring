@@ -1,9 +1,9 @@
 package com.system.customer_support_ticketing_system.auth;
 
 import com.system.customer_support_ticketing_system.config.JwtConfig;
-import com.system.customer_support_ticketing_system.dtos.CreateUserDto;
 import com.system.customer_support_ticketing_system.dtos.JwtResponse;
 import com.system.customer_support_ticketing_system.dtos.LoginRequest;
+import com.system.customer_support_ticketing_system.dtos.UserRequest;
 import com.system.customer_support_ticketing_system.dtos.UserResponse;
 import com.system.customer_support_ticketing_system.enums.UserRole;
 import com.system.customer_support_ticketing_system.exceptions.EmailAlreadyExists;
@@ -27,7 +27,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final JwtConfig jwtConfig;
 
-    public UserResponse createUser(CreateUserDto request){
+    public UserResponse createUser(UserRequest request){
         if(userRepository.existsUserByEmail(request.getEmail())){
             throw new EmailAlreadyExists();
         }
