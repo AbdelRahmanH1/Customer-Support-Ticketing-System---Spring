@@ -1,5 +1,6 @@
 package com.system.customer_support_ticketing_system.config;
 
+import com.system.customer_support_ticketing_system.exceptions.CustomAccessDeniedHandler;
 import com.system.customer_support_ticketing_system.exceptions.CustomAuthenticationEntryPoint;
 import com.system.customer_support_ticketing_system.filters.JwtFilter;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
 
     @Bean
@@ -47,7 +49,10 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex->ex
-                        .authenticationEntryPoint(authenticationEntryPoint))
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
+
         ;
     return http.build();
     }
