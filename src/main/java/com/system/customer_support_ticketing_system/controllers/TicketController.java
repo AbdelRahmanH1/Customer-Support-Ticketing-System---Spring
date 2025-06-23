@@ -2,6 +2,9 @@ package com.system.customer_support_ticketing_system.controllers;
 
 import com.system.customer_support_ticketing_system.dtos.CreateTicketRequest;
 import com.system.customer_support_ticketing_system.dtos.UpdateTicketRequest;
+import com.system.customer_support_ticketing_system.dtos.UpdateTicketStatusRequest;
+import com.system.customer_support_ticketing_system.mappers.TicketMapper;
+import com.system.customer_support_ticketing_system.repositories.TicketRepository;
 import com.system.customer_support_ticketing_system.services.TicketService;
 import com.system.customer_support_ticketing_system.utils.ResponseUtil;
 import com.system.customer_support_ticketing_system.utils.SecurityUtil;
@@ -59,4 +62,16 @@ public class TicketController {
         var response = ticketService.updateTicket(userId, ticketId, request);
         return ResponseUtil.success("Ticket updated successfully", response);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateTicketStatus(@PathVariable(name = "id") Long ticketId,
+                                                @Valid @RequestBody UpdateTicketStatusRequest request) {
+        var adminId = SecurityUtil.getUserId();
+
+        var response = ticketService.updateTicketStatus(adminId, ticketId, request);
+
+        return ResponseUtil.success("Ticket updated successfully", response);
+    }
+
 }

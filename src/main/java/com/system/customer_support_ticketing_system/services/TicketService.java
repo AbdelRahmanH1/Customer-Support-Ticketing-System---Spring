@@ -3,13 +3,16 @@ package com.system.customer_support_ticketing_system.services;
 import com.system.customer_support_ticketing_system.dtos.CreateTicketRequest;
 import com.system.customer_support_ticketing_system.dtos.TicketResponse;
 import com.system.customer_support_ticketing_system.dtos.UpdateTicketRequest;
+import com.system.customer_support_ticketing_system.dtos.UpdateTicketStatusRequest;
 import com.system.customer_support_ticketing_system.entities.Ticket;
 import com.system.customer_support_ticketing_system.entities.User;
 import com.system.customer_support_ticketing_system.enums.TicketStatus;
+import com.system.customer_support_ticketing_system.exceptions.ApiException;
 import com.system.customer_support_ticketing_system.exceptions.TicketNotFoundException;
 import com.system.customer_support_ticketing_system.mappers.TicketMapper;
 import com.system.customer_support_ticketing_system.repositories.TicketRepository;
 import com.system.customer_support_ticketing_system.repositories.UserRepository;
+import com.system.customer_support_ticketing_system.utils.ResponseUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -17,9 +20,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
@@ -100,6 +106,24 @@ public class TicketService {
 
         ticketMapper.updateTicketFromRequest(request, ticket);
 
+        ticketRepository.save(ticket);
+
+        return ticketMapper.toDto(ticket);
+    }
+
+    public TicketResponse updateTicketStatus(Long adminId, Long ticketId, UpdateTicketStatusRequest request){
+
+        var status = request.getStatus().toUpperCase();
+        TicketStatus newStatus;
+        try {
+            newStatus = TicketStatus.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new ApiException("Invalid ticket status: " + request.getStatus(), HttpStatus.BAD_REQUEST);
+        }
+        var ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(TicketNotFoundException::new);
+
+        ticket.changeStatus(newStatus, adminId);
         ticketRepository.save(ticket);
 
         return ticketMapper.toDto(ticket);

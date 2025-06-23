@@ -4,6 +4,7 @@ import com.system.customer_support_ticketing_system.enums.TicketStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDateTime;
 
@@ -43,4 +44,20 @@ public class Ticket {
 
     @Column(name = "end_time")
     private LocalDateTime endTime;
+
+    public void changeStatus(TicketStatus newStatus,long adminId) {
+        if(this.status == TicketStatus.CLOSED) {
+            throw new AccessDeniedException("Ticket has been closed");
+        }
+        if(this.status == newStatus) {
+            return;
+        }
+        this.setStatus(newStatus);
+        if(newStatus == TicketStatus.CLOSED) {
+            this.setEndTime(LocalDateTime.now());
+        }
+        var admin = new User();
+        admin.setId(adminId);
+        this.adminResponder = admin;
+    }
 }
