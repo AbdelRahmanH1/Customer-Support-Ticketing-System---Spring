@@ -21,7 +21,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType("application/json");
         Map<String, Object> map = new HashMap<>();
         map.put("success",false);
-        map.put("message","Token Not valid Or not found");
+        map.put("message","Token is missing or invalid");
         String json = objectMapper.writeValueAsString(map);
         response.getWriter().write(json);
     }

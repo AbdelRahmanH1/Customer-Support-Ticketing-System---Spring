@@ -7,6 +7,7 @@ import com.system.customer_support_ticketing_system.dtos.UserRequest;
 import com.system.customer_support_ticketing_system.dtos.UserResponse;
 import com.system.customer_support_ticketing_system.enums.UserRole;
 import com.system.customer_support_ticketing_system.exceptions.EmailAlreadyExists;
+import com.system.customer_support_ticketing_system.exceptions.InvalidCredentialsException;
 import com.system.customer_support_ticketing_system.exceptions.InvalidTokenException;
 import com.system.customer_support_ticketing_system.mappers.UserMapper;
 import com.system.customer_support_ticketing_system.repositories.UserRepository;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.Cookie;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,19 +40,23 @@ public class AuthService {
         return userMapper.toDto(user);
     }
     public JwtResponse login(LoginRequest request){
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
 
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var accessToken = jwtService.generateAccessToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+            var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+            var accessToken = jwtService.generateAccessToken(user);
+            var refreshToken = jwtService.generateRefreshToken(user);
 
-        var cookie = new Cookie("refreshToken",refreshToken);
-        cookie.setPath("/auth/refresh");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
-        return new JwtResponse(accessToken);
+            var cookie = new Cookie("refreshToken",refreshToken);
+            cookie.setPath("/auth/refresh");
+            cookie.setHttpOnly(true);
+            cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
+            return new JwtResponse(accessToken);
+        }catch (AuthenticationException e){
+            throw new InvalidCredentialsException();
+        }
     }
     public JwtResponse refreshToken(String refreshToken){
         if(!jwtService.validateToken(refreshToken)){
