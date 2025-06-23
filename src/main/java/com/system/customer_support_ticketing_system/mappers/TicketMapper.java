@@ -11,7 +11,7 @@ import org.mapstruct.*;
 public interface TicketMapper {
 
     @Mapping(source = "createdAt", target = "createdDate")
-    @Mapping(source = "user",target = "userId" )
+    @Mapping(source = "user", target = "userId", qualifiedByName = "mapUserToId")
     TicketResponse toDto(Ticket ticket);
 
     Ticket toEntity(CreateTicketRequest request);
@@ -22,8 +22,8 @@ public interface TicketMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateTicketFromRequest(UpdateTicketRequest request, @MappingTarget Ticket ticket);
 
-
-    default Long map(User user) {
+    @Named("mapUserToId")
+    default Long mapUserToId(User user) {
         return user != null ? user.getId() : null;
     }
 }
