@@ -1,6 +1,7 @@
 package com.system.customer_support_ticketing_system.controllers;
 
 import com.system.customer_support_ticketing_system.dtos.CreateTicketRequest;
+import com.system.customer_support_ticketing_system.dtos.UpdateTicketRequest;
 import com.system.customer_support_ticketing_system.services.TicketService;
 import com.system.customer_support_ticketing_system.utils.ResponseUtil;
 import com.system.customer_support_ticketing_system.utils.SecurityUtil;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class TicketController {
 
     private final TicketService ticketService;
+
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping()
@@ -47,5 +49,14 @@ public class TicketController {
         var ticketDto = ticketService.getTicketById(userId,userRole,ticketId);
 
         return ResponseUtil.success("Ticket fetched successfully", ticketDto);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTicket(@PathVariable(name = "id") long ticketId,
+                                          @Valid @RequestBody UpdateTicketRequest request)  {
+        var userId = SecurityUtil.getUserId();
+        var response = ticketService.updateTicket(userId, ticketId, request);
+        return ResponseUtil.success("Ticket updated successfully", response);
     }
 }

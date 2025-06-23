@@ -2,6 +2,7 @@ package com.system.customer_support_ticketing_system.services;
 
 import com.system.customer_support_ticketing_system.dtos.CreateTicketRequest;
 import com.system.customer_support_ticketing_system.dtos.TicketResponse;
+import com.system.customer_support_ticketing_system.dtos.UpdateTicketRequest;
 import com.system.customer_support_ticketing_system.entities.Ticket;
 import com.system.customer_support_ticketing_system.entities.User;
 import com.system.customer_support_ticketing_system.enums.TicketStatus;
@@ -78,5 +79,29 @@ public class TicketService {
             throw new AccessDeniedException("Access denied");
         }
         return  ticketMapper.toDto(ticket);
+    }
+
+    public TicketResponse updateTicket(Long userId, Long ticketId, UpdateTicketRequest request){
+        var optionalTicket = ticketRepository.findById(ticketId);
+        if (optionalTicket.isEmpty()) {
+            throw new TicketNotFoundException();
+        }
+
+        var ticket = optionalTicket.get();
+
+        if (!ticket.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        if (ticket.getStatus().name().equals("CLOSED")) {
+            throw new AccessDeniedException("Ticket is closed");
+        }
+
+
+        ticketMapper.updateTicketFromRequest(request, ticket);
+
+        ticketRepository.save(ticket);
+
+        return ticketMapper.toDto(ticket);
     }
 }
