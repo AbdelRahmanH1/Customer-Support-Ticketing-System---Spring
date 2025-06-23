@@ -5,6 +5,7 @@ import com.system.customer_support_ticketing_system.dtos.TicketResponse;
 import com.system.customer_support_ticketing_system.entities.Ticket;
 import com.system.customer_support_ticketing_system.entities.User;
 import com.system.customer_support_ticketing_system.enums.TicketStatus;
+import com.system.customer_support_ticketing_system.exceptions.TicketNotFoundException;
 import com.system.customer_support_ticketing_system.mappers.TicketMapper;
 import com.system.customer_support_ticketing_system.repositories.TicketRepository;
 import com.system.customer_support_ticketing_system.repositories.UserRepository;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -62,5 +64,19 @@ public class TicketService {
 
         return ticketPage.map(ticketMapper::toDto);
 
+    }
+
+    public TicketResponse getTicketById(Long userId, String userRole,Long ticketId){
+        var optionalTicket = ticketRepository.findById(ticketId);
+        if (optionalTicket.isEmpty()) {
+            throw new TicketNotFoundException();
+        }
+
+        var ticket = optionalTicket.get();
+
+        if ("USER".equals(userRole) && !ticket.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("Access denied");
+        }
+        return  ticketMapper.toDto(ticket);
     }
 }

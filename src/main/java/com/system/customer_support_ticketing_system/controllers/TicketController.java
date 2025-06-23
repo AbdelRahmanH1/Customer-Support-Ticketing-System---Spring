@@ -40,4 +40,12 @@ public class TicketController {
         return ResponseUtil.success("Fetched Tickets", ticketDtoPage);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTicketById(@PathVariable(name = "id") Long ticketId) {
+        var userId = SecurityUtil.getUserId();
+        var userRole = SecurityUtil.getUserRole();
+        var ticketDto = ticketService.getTicketById(userId,userRole,ticketId);
+
+        return ResponseUtil.success("Ticket fetched successfully", ticketDto);
+    }
 }
