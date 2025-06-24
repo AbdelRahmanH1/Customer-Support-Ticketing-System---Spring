@@ -12,7 +12,6 @@ import com.system.customer_support_ticketing_system.exceptions.TicketNotFoundExc
 import com.system.customer_support_ticketing_system.mappers.TicketMapper;
 import com.system.customer_support_ticketing_system.repositories.TicketRepository;
 import com.system.customer_support_ticketing_system.repositories.UserRepository;
-import com.system.customer_support_ticketing_system.utils.ResponseUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -99,7 +98,7 @@ public class TicketService {
             throw new AccessDeniedException("Access denied");
         }
 
-        if (ticket.getStatus().name().equals("CLOSED")) {
+        if (ticket.isClosed()) {
             throw new AccessDeniedException("Ticket is closed");
         }
 
