@@ -74,4 +74,10 @@ public class TicketReplyService {
                 .map(ticketReplyMapper::toDto)
                 .toList();
     }
+
+    @Transactional
+    public void deleteReply(Long ticketId) {
+        ticketRepository.findById(ticketId).orElseThrow(TicketNotFoundException::new);
+        ticketReplyRepository.deleteByTicketId(ticketId);
+    }
 }
