@@ -3,6 +3,8 @@ package com.system.customer_support_ticketing_system.auth;
 import com.system.customer_support_ticketing_system.dtos.LoginRequest;
 import com.system.customer_support_ticketing_system.dtos.UserRequest;
 import com.system.customer_support_ticketing_system.utils.ResponseUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,10 +14,16 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @AllArgsConstructor
+@Tag(name = "Auth Controller",description = "Endpoints for managing auth")
 public class AuthController {
     private final AuthService authService;
 
+
     @PostMapping("/register")
+    @Operation(
+            summary = "Register a new user",
+            description = "Creates a new user account with the provided email, username, and password"
+    )
     public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest request)  {
 
         var userDto = authService.createUser(request);
@@ -23,6 +31,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(
+            summary = "User login",
+            description = "Authenticates a user and returns a JWT access token"
+    )
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request)  {
 
         var accessToken = authService.login(request);
@@ -30,6 +42,10 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
+    @Operation(
+            summary = "Refresh access token",
+            description = "Generates a new access token using the refresh token from the cookie"
+    )
     public ResponseEntity<?> refresh(@CookieValue(value ="refreshToken")String refreshToken)  {
         var accessToken = authService.refreshToken(refreshToken);
         return ResponseUtil.success("Refresh success",accessToken);
