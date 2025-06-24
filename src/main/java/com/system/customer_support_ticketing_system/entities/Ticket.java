@@ -60,4 +60,12 @@ public class Ticket {
         admin.setId(adminId);
         this.adminResponder = admin;
     }
+
+    public boolean isClosed() {
+        return this.status == TicketStatus.CLOSED;
+    }
+
+    public boolean isOwnedBy(Long userId) {
+        return this.user != null && this.user.getId().equals(userId);
+    }
 }
