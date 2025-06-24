@@ -2,6 +2,7 @@ package com.system.customer_support_ticketing_system.services;
 
 import com.system.customer_support_ticketing_system.dtos.ReplyRequest;
 import com.system.customer_support_ticketing_system.dtos.ReplyResponse;
+import com.system.customer_support_ticketing_system.dtos.TicketReplyResponse;
 import com.system.customer_support_ticketing_system.entities.Ticket;
 import com.system.customer_support_ticketing_system.entities.TicketReply;
 import com.system.customer_support_ticketing_system.entities.User;
@@ -58,5 +59,19 @@ public class TicketReplyService {
         entityManager.refresh(ticketReply);
 
         return ticketReplyMapper.toResponse(ticketReply);
+    }
+
+    public List<TicketReplyResponse> getReply(Long userId, boolean isAdmin, Long ticketId) {
+        var ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(TicketNotFoundException::new);
+
+        if (!isAdmin && !ticket.isOwnedBy(userId)) {
+            throw new ApiException("You are not allowed to view replies for this ticket.", HttpStatus.FORBIDDEN);
+        }
+
+        var replies = ticketReplyRepository.findByTicketIdOrderByCreatedAtAsc(ticketId);
+        return replies.stream()
+                .map(ticketReplyMapper::toDto)
+                .toList();
     }
 }
