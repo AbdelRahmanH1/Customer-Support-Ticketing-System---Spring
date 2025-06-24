@@ -65,7 +65,7 @@ public class TicketController {
     ) {
         var userID = SecurityUtil.getUserId();
         var userRole = SecurityUtil.getUserRole();
-        var ticketDtoPage = ticketService.updateTicket(userID, userId, page, userRole);
+        var ticketDtoPage = ticketService.getTickets(userID, userId, page, userRole);
         return ResponseUtil.success("Fetched Tickets", ticketDtoPage);
     }
 

@@ -10,6 +10,7 @@ import com.system.customer_support_ticketing_system.enums.TicketStatus;
 import com.system.customer_support_ticketing_system.exceptions.ApiException;
 import com.system.customer_support_ticketing_system.exceptions.TicketNotFoundException;
 import com.system.customer_support_ticketing_system.mappers.TicketMapper;
+import com.system.customer_support_ticketing_system.mappers.UserMapper;
 import com.system.customer_support_ticketing_system.repositories.TicketRepository;
 import com.system.customer_support_ticketing_system.repositories.UserRepository;
 import jakarta.persistence.EntityManager;
@@ -34,6 +35,7 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final EntityManager entityManager;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
     @Transactional
     public TicketResponse createTicket(Long userId,CreateTicketRequest request){
@@ -46,11 +48,11 @@ public class TicketService {
 
         ticketRepository.save(ticket);
         entityManager.refresh(ticket);
-
+        auditLogService.log("TICKET_CREATED",userId,"created ticket with title: "+ticket.getTitle());
         return ticketMapper.toDto(ticket);
     }
 
-    public Page<TicketResponse> updateTicket(Long userID, Long userId, int page, String userRole){
+    public Page<TicketResponse> getTickets(Long userID, Long userId, int page, String userRole){
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
 
         Page<Ticket> ticketPage;
@@ -67,7 +69,6 @@ public class TicketService {
         } else {
             ticketPage = ticketRepository.findByUserId(userID, pageable);
         }
-
         return ticketPage.map(ticketMapper::toDto);
 
     }
@@ -106,7 +107,7 @@ public class TicketService {
         ticketMapper.updateTicketFromRequest(request, ticket);
 
         ticketRepository.save(ticket);
-
+        auditLogService.log("TICKET_UPDATED",userId,"Updated ticket "+ticketId);
         return ticketMapper.toDto(ticket);
     }
 
@@ -124,7 +125,7 @@ public class TicketService {
 
         ticket.changeStatus(newStatus, adminId);
         ticketRepository.save(ticket);
-
+        auditLogService.log("TICKET_UPDATED",adminId,"Updated ticket with status "+newStatus);
         return ticketMapper.toDto(ticket);
     }
 }

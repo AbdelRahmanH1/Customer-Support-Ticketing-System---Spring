@@ -9,8 +9,10 @@ import com.system.customer_support_ticketing_system.entities.User;
 import com.system.customer_support_ticketing_system.exceptions.ApiException;
 import com.system.customer_support_ticketing_system.exceptions.TicketNotFoundException;
 import com.system.customer_support_ticketing_system.mappers.TicketReplyMapper;
+import com.system.customer_support_ticketing_system.repositories.AuditLogRepository;
 import com.system.customer_support_ticketing_system.repositories.TicketReplyRepository;
 import com.system.customer_support_ticketing_system.repositories.TicketRepository;
+import com.system.customer_support_ticketing_system.utils.SecurityUtil;
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,7 @@ public class TicketReplyService {
     private final TicketReplyRepository ticketReplyRepository;
     private final TicketReplyMapper ticketReplyMapper;
     private final EntityManager entityManager;
+    private final AuditLogService auditLogService;
 
     @Transactional
     public ReplyResponse addReply(Long userId, boolean isAdmin, Long ticketId, ReplyRequest request) {
@@ -57,7 +60,7 @@ public class TicketReplyService {
 
         ticketReplyRepository.save(ticketReply);
         entityManager.refresh(ticketReply);
-
+        auditLogService.log("ADD_REPLY",userId,"add message: "+request.getMessage());
         return ticketReplyMapper.toResponse(ticketReply);
     }
 
@@ -77,7 +80,9 @@ public class TicketReplyService {
 
     @Transactional
     public void deleteReply(Long ticketId) {
+        var user = SecurityUtil.getUserId();
         ticketRepository.findById(ticketId).orElseThrow(TicketNotFoundException::new);
         ticketReplyRepository.deleteByTicketId(ticketId);
+        auditLogService.log("DELETE_REPLY",user,"delete messages related to ticket: "+ticketId);
     }
 }
