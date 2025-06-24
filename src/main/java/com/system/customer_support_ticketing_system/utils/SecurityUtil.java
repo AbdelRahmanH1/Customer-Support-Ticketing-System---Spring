@@ -14,4 +14,16 @@ public final class SecurityUtil {
                 .map(auth -> auth.getAuthority().replace("ROLE_", ""))
                 .orElse(null);
     }
+
+    public static boolean isCurrentUserAdmin() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getAuthorities() == null) return false;
+
+        auth.getAuthorities().forEach(a -> System.out.println("AUTH: " + a.getAuthority()));
+
+        return auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+
 }
