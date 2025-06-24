@@ -5,6 +5,7 @@ import com.system.customer_support_ticketing_system.entities.AuditLog;
 import com.system.customer_support_ticketing_system.mappers.AuditLogMapper;
 import com.system.customer_support_ticketing_system.repositories.AuditLogRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.List;
 public class AuditLogService {
     private final AuditLogRepository auditLogRepository;
     private final AuditLogMapper auditLogMapper;
+
+    @Async
     public void log(String action,Long userId,String metadata){
         var log = new AuditLog()
                 .withAction(action)
