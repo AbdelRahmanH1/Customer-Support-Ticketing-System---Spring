@@ -11,6 +11,7 @@ import com.system.customer_support_ticketing_system.mappers.UserMapper;
 import com.system.customer_support_ticketing_system.repositories.UserRepository;
 import com.system.customer_support_ticketing_system.services.EmailService;
 import com.system.customer_support_ticketing_system.utils.CodeGeneratorUtil;
+import com.system.customer_support_ticketing_system.utils.EmailTemplateBuilder;
 import jakarta.servlet.http.Cookie;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
 
 @Service
 @AllArgsConstructor
@@ -77,17 +79,24 @@ public class AuthService {
 
     @Async
     @Transactional
-    public void forgetPassword(EmailRequest request){
-        String existingCode  = userRepository.findResetCodeByEmail(request.getEmail()).orElse(null);
+    public void forgetPassword(EmailRequest request) {
+        Optional<EmailCodeView> resultOpt = userRepository.findEmailAndCodeByEmail(request.getEmail());
+        if (resultOpt.isEmpty()) return;
+        EmailCodeView result = resultOpt.get();
 
-        if(existingCode==null)return;
-        if(!existingCode.isBlank()) return;
-        var code = otp.generate6DigitCode();
+        if (result.getPasswordResetCode() != null && !result.getPasswordResetCode().isBlank()) {
+            return;
+        }
 
-
+        String code = otp.generate6DigitCode();
         userRepository.updatePasswordResetCode(request.getEmail(), code);
-        emailService.sendEmail(request.getEmail(), "Password Reset Code", code);
+
+        String html = EmailTemplateBuilder.buildResetCodeTemplate(request.getEmail(), code);
+        emailService.send(request.getEmail(), "Password Reset Code", html, true);
     }
+
+
+
     @Transactional
     public void resetPassword(ResetPasswordRequest request){
         String existingCode  = userRepository.findResetCodeByEmail(request.getEmail()).orElse(null);

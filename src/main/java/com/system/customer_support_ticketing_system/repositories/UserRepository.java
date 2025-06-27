@@ -1,5 +1,6 @@
 package com.system.customer_support_ticketing_system.repositories;
 
+import com.system.customer_support_ticketing_system.dtos.EmailCodeView;
 import com.system.customer_support_ticketing_system.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -31,4 +32,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.password = :password , u.passwordResetCode= NULL WHERE u.email = :email")
     int resetPassword(@Param("email")String email, @Param("password")String password);
+
+    @Query("SELECT u.email AS email, u.passwordResetCode AS passwordResetCode FROM User u WHERE u.email = :email")
+    Optional<EmailCodeView> findEmailAndCodeByEmail(@Param("email") String email);
 }
