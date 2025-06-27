@@ -4,8 +4,6 @@ import com.system.customer_support_ticketing_system.dtos.EmailRequest;
 import com.system.customer_support_ticketing_system.dtos.LoginRequest;
 import com.system.customer_support_ticketing_system.dtos.ResetPasswordRequest;
 import com.system.customer_support_ticketing_system.dtos.UserRequest;
-import com.system.customer_support_ticketing_system.repositories.UserRepository;
-import com.system.customer_support_ticketing_system.utils.CodeGeneratorUtil;
 import com.system.customer_support_ticketing_system.utils.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Auth Controller", description = "Endpoints for managing auth")
 public class AuthController {
     private final AuthService authService;
-    private final UserRepository userRepository;
-    private final CodeGeneratorUtil otp;
 
     @PostMapping("/register")
     @Operation(
