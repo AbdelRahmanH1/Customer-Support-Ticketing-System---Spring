@@ -39,6 +39,10 @@ JWT_SECRET=your_secret
 DB_URL=jdbc:mysql://localhost:3306/tickets?createDatabaseIfNotExist=true
 DB_USERNAME=root
 DB_PASSWORD=yourpassword
+MAIL_HOST=host
+MAIL_PORT=port
+MAIL_USERNAME=username
+MAIL_PASSWORD=password
 ```
 
 ## 🚀 Running the Application
@@ -114,6 +118,50 @@ Run the project
  }
   ```
 
+### Forget-Password
+
+- **Endpoint:** `POST auth/forget-password`
+- **Request Body:**
+
+  ```json
+  {
+    "email": "string"
+  }
+  ```
+
+  **Response result:**
+
+  ```json
+  {
+    "success": "boolean",
+    "message": "string",
+    "data": null
+  }
+  ```
+
+### reset-Password
+
+- **Endpoint:** `POST auth/reset-password`
+- **Request Body:**
+
+  ```json
+  {
+    "email": "string",
+    "newPassword": "string",
+    "code": "string"
+  }
+  ```
+
+  **Response result:**
+
+  ```json
+  {
+    "success": "boolean",
+    "message": "string",
+    "data": null
+  }
+  ```
+  
 ## User 
 
 ### getCurrent User
@@ -154,22 +202,21 @@ Run the project
   }
   ```
 
-  ### Delete User
+### Delete User
 
 - **Endpoint:** `GET /users`
 - **Authorization:** `Bearer [token]`
 - **Request Body:**
     no request body required
 
-**Response Schema:**
-```json
+  **Response Schema:**
+  ```json
   {
-  "success":"boolean",
-  "message": "string",
-  "data": null
-}
-   
-```
+    "success":"boolean",
+    "message": "string",
+    "data": null
+  }
+  ```
   
 ## Ticket
 ### create Ticket
@@ -426,22 +473,6 @@ Authorization: Bearer <access_token>
 - **USER:** can create/ update their tickets, send replies
 - **ADMIN:** can update ticket status, reply to any ticket, delete replies, view audit logs
 
-### 3. 🚀 **Future Roadmap**
-You're already thinking about `Redis`, `Email verification`, `Cron operations`:
-
-```md
-## 🚀 Future Roadmap
-
-Planned features (not yet implemented):
-
-- [ ] Email verification via token
-- [ ] Forgot password functionality
-- [ ] Token storage and revocation using Redis
-- [ ] Cron job to delete replies of closed tickets weekly
-- [ ] Role management via Admin Panel
-- [ ] API rate limiting to prevent spam
-- [ ] Internationalization (i18n) support
-```
 ## 🤝 Contributing
  This project is open for suggestions and improvements. If you'd like to contribute, ``feel free to open issues or submit pull requests.``
 
