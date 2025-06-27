@@ -10,7 +10,6 @@ public class LoginRequest {
 
     @Email
     @NotBlank
-    @Size(min = 4, max = 25,message = "Name length must be between 5 and 25 characters")
     private String email;
 
     @NotBlank(message = "password is required")
