@@ -32,6 +32,9 @@ public class User {
     @Column(name = "deleted")
     private boolean deleted;
 
+    @Column(name = "password_reset_code")
+    private String passwordResetCode;
+
     @Column(name = "created_at",insertable = false,updatable = false)
     private LocalDateTime createdAt;
 

@@ -1,33 +1,40 @@
 package com.system.customer_support_ticketing_system.auth;
 
 import com.system.customer_support_ticketing_system.config.JwtConfig;
-import com.system.customer_support_ticketing_system.dtos.JwtResponse;
-import com.system.customer_support_ticketing_system.dtos.LoginRequest;
-import com.system.customer_support_ticketing_system.dtos.UserRequest;
-import com.system.customer_support_ticketing_system.dtos.UserResponse;
+import com.system.customer_support_ticketing_system.dtos.*;
 import com.system.customer_support_ticketing_system.enums.UserRole;
+import com.system.customer_support_ticketing_system.exceptions.ApiException;
 import com.system.customer_support_ticketing_system.exceptions.EmailAlreadyExists;
 import com.system.customer_support_ticketing_system.exceptions.InvalidCredentialsException;
 import com.system.customer_support_ticketing_system.exceptions.InvalidTokenException;
 import com.system.customer_support_ticketing_system.mappers.UserMapper;
 import com.system.customer_support_ticketing_system.repositories.UserRepository;
+import com.system.customer_support_ticketing_system.services.EmailService;
+import com.system.customer_support_ticketing_system.utils.CodeGeneratorUtil;
 import jakarta.servlet.http.Cookie;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @AllArgsConstructor
 public class AuthService {
+    private final EmailService emailService;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final JwtConfig jwtConfig;
+    private final CodeGeneratorUtil otp;
 
     public UserResponse createUser(UserRequest request){
         if(userRepository.existsUserByEmail(request.getEmail())){
@@ -66,6 +73,33 @@ public class AuthService {
         var user = userRepository.findById(userId).orElseThrow();
         var accessToken = jwtService.generateAccessToken(user);
         return new JwtResponse(accessToken);
+    }
+
+    @Async
+    @Transactional
+    public void forgetPassword(EmailRequest request){
+        String existingCode  = userRepository.findResetCodeByEmail(request.getEmail()).orElse(null);
+
+        if(existingCode==null)return;
+        if(!existingCode.isBlank()) return;
+        var code = otp.generate6DigitCode();
+
+
+        userRepository.updatePasswordResetCode(request.getEmail(), code);
+        emailService.sendEmail(request.getEmail(), "Password Reset Code", code);
+    }
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request){
+        String existingCode  = userRepository.findResetCodeByEmail(request.getEmail()).orElse(null);
+
+        if(existingCode== null || !existingCode.equals(request.getCode()))
+            throw new ApiException("The email and code must match", HttpStatus.BAD_REQUEST);
+
+        var newPassword = passwordEncoder.encode(request.getNewPassword());
+
+        int updated = userRepository.resetPassword(request.getEmail(), newPassword);
+        if(updated == 0) throw new ApiException("Could not update password", HttpStatus.BAD_REQUEST);
+
     }
 }
 

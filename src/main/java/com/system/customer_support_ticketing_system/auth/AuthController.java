@@ -1,7 +1,11 @@
 package com.system.customer_support_ticketing_system.auth;
 
+import com.system.customer_support_ticketing_system.dtos.EmailRequest;
 import com.system.customer_support_ticketing_system.dtos.LoginRequest;
+import com.system.customer_support_ticketing_system.dtos.ResetPasswordRequest;
 import com.system.customer_support_ticketing_system.dtos.UserRequest;
+import com.system.customer_support_ticketing_system.repositories.UserRepository;
+import com.system.customer_support_ticketing_system.utils.CodeGeneratorUtil;
 import com.system.customer_support_ticketing_system.utils.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,20 +18,21 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @AllArgsConstructor
-@Tag(name = "Auth Controller",description = "Endpoints for managing auth")
+@Tag(name = "Auth Controller", description = "Endpoints for managing auth")
 public class AuthController {
     private final AuthService authService;
-
+    private final UserRepository userRepository;
+    private final CodeGeneratorUtil otp;
 
     @PostMapping("/register")
     @Operation(
             summary = "Register a new user",
             description = "Creates a new user account with the provided email, username, and password"
     )
-    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest request)  {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest request) {
 
         var userDto = authService.createUser(request);
-        return ResponseUtil.success("User registered successfully",userDto , HttpStatus.CREATED);
+        return ResponseUtil.success("User registered successfully", userDto, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
@@ -35,10 +40,10 @@ public class AuthController {
             summary = "User login",
             description = "Authenticates a user and returns a JWT access token"
     )
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request)  {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
 
         var accessToken = authService.login(request);
-        return ResponseUtil.success("Login success",accessToken);
+        return ResponseUtil.success("Login success", accessToken);
     }
 
     @PostMapping("/refresh")
@@ -46,9 +51,20 @@ public class AuthController {
             summary = "Refresh access token",
             description = "Generates a new access token using the refresh token from the cookie"
     )
-    public ResponseEntity<?> refresh(@CookieValue(value ="refreshToken")String refreshToken)  {
+    public ResponseEntity<?> refresh(@CookieValue(value = "refreshToken") String refreshToken) {
         var accessToken = authService.refreshToken(refreshToken);
-        return ResponseUtil.success("Refresh success",accessToken);
+        return ResponseUtil.success("Refresh success", accessToken);
     }
 
+    @PostMapping("/forget-password")
+    public ResponseEntity<?> forgetPassword(@Valid @RequestBody EmailRequest request) {
+        authService.forgetPassword(request);
+        return ResponseUtil.success("If the email exists, a reset code has been sent.");
+    }
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseUtil.success("Password reset successfully",null);
+
+    }
 }
