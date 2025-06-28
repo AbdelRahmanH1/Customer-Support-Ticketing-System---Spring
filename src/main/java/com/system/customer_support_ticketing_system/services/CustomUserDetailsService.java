@@ -22,10 +22,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         if(user.isDeleted()){
             throw new DisabledException("User is deleted");
         }
-        return new User(
-                user.getEmail(),
-                user.getPassword(),
-                Collections.emptyList()
-        );
+        return user;
     }
 }
