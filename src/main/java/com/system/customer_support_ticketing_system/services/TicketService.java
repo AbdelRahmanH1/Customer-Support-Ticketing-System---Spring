@@ -10,7 +10,6 @@ import com.system.customer_support_ticketing_system.enums.TicketStatus;
 import com.system.customer_support_ticketing_system.exceptions.ApiException;
 import com.system.customer_support_ticketing_system.exceptions.TicketNotFoundException;
 import com.system.customer_support_ticketing_system.mappers.TicketMapper;
-import com.system.customer_support_ticketing_system.mappers.UserMapper;
 import com.system.customer_support_ticketing_system.repositories.TicketRepository;
 import com.system.customer_support_ticketing_system.repositories.UserRepository;
 import jakarta.persistence.EntityManager;
@@ -24,8 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor

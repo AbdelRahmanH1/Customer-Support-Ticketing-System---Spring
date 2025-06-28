@@ -7,7 +7,6 @@ import com.system.customer_support_ticketing_system.dtos.UserRequest;
 import com.system.customer_support_ticketing_system.utils.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
