@@ -10,6 +10,7 @@ import com.system.customer_support_ticketing_system.exceptions.InvalidTokenExcep
 import com.system.customer_support_ticketing_system.mappers.UserMapper;
 import com.system.customer_support_ticketing_system.repositories.UserRepository;
 import com.system.customer_support_ticketing_system.services.EmailService;
+import com.system.customer_support_ticketing_system.services.ResetPasswordRedis;
 import com.system.customer_support_ticketing_system.utils.CodeGeneratorUtil;
 import com.system.customer_support_ticketing_system.utils.EmailTemplateBuilder;
 import jakarta.servlet.http.Cookie;
@@ -37,6 +38,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final JwtConfig jwtConfig;
     private final CodeGeneratorUtil otp;
+    private final ResetPasswordRedis resetPasswordRedis;
 
     public UserResponse createUser(UserRequest request){
         if(userRepository.existsUserByEmail(request.getEmail())){
@@ -77,38 +79,37 @@ public class AuthService {
         return new JwtResponse(accessToken);
     }
 
-    @Async
-    @Transactional
     public void forgetPassword(EmailRequest request) {
-        Optional<EmailCodeView> resultOpt = userRepository.findEmailAndCodeByEmail(request.getEmail());
-        if (resultOpt.isEmpty()) return;
-        EmailCodeView result = resultOpt.get();
-
-        if (result.getPasswordResetCode() != null && !result.getPasswordResetCode().isBlank()) {
+        var email = request.getEmail();
+        if(!userRepository.existsUserByEmail(email)){
             return;
         }
-
+        if(resetPasswordRedis.getCode(email)!=null){
+            return;
+        }
         String code = otp.generate6DigitCode();
-        userRepository.updatePasswordResetCode(request.getEmail(), code);
+        resetPasswordRedis.setCode(email, code);
 
         String html = EmailTemplateBuilder.buildResetCodeTemplate(request.getEmail(), code);
         emailService.send(request.getEmail(), "Password Reset Code", html, true);
     }
 
-
-
     @Transactional
     public void resetPassword(ResetPasswordRequest request){
-        String existingCode  = userRepository.findResetCodeByEmail(request.getEmail()).orElse(null);
+        String email = request.getEmail();
+        String inputCode = request.getCode();
 
-        if(existingCode== null || !existingCode.equals(request.getCode()))
-            throw new ApiException("The email and code must match", HttpStatus.BAD_REQUEST);
+        String existingCode = resetPasswordRedis.getCode(email);
 
-        var newPassword = passwordEncoder.encode(request.getNewPassword());
-
-        int updated = userRepository.resetPassword(request.getEmail(), newPassword);
-        if(updated == 0) throw new ApiException("Could not update password", HttpStatus.BAD_REQUEST);
-
+        if(existingCode == null || !existingCode.equals(inputCode)){
+            throw new ApiException("The email and code must match",HttpStatus.BAD_REQUEST);
+        }
+        String newPassword = passwordEncoder.encode(request.getNewPassword());
+        int updated = userRepository.resetPassword(email, newPassword);
+        if(updated == 0){
+            throw new ApiException("Could not update password",HttpStatus.BAD_REQUEST);
+        }
+        resetPasswordRedis.deleteCode(email);
     }
 }
 

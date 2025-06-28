@@ -57,6 +57,7 @@ public class AuthController {
         authService.forgetPassword(request);
         return ResponseUtil.success("If the email exists, a reset code has been sent.");
     }
+
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request);
