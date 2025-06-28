@@ -7,6 +7,8 @@ import com.system.customer_support_ticketing_system.dtos.UserRequest;
 import com.system.customer_support_ticketing_system.utils.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -36,9 +38,9 @@ public class AuthController {
             summary = "User login",
             description = "Authenticates a user and returns a JWT access token"
     )
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
 
-        var accessToken = authService.login(request);
+        var accessToken = authService.login(request,response);
         return ResponseUtil.success("Login success", accessToken);
     }
 
