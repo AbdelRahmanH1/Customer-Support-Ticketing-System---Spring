@@ -14,7 +14,7 @@ A backend system for managing support tickets, user roles, and replies. Built wi
 - 🧠 MapStruct
 - ✅ Jakarta Validation
 - 🦾 Lombok
-- 🧠 Redis (planned)
+- 🧠 Redis
 
 
 ## ⚙️ Environment Setup
